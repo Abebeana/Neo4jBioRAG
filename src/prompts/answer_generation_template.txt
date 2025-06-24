@@ -1,0 +1,3 @@
+This template is used to guide the LLM in generating final user 
+responses by incorporating the results obtained from database queries,
+ensuring that answers are accurate and contextually relevant based on the retrieved data.
