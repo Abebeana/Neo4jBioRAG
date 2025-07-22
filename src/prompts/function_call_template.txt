@@ -1,3 +1,0 @@
-This template instructs the LLM on how to select and format 
-appropriate function calls based on the user’s question, enabling 
-dynamic determination of which database functions to invoke for information retrieval.
