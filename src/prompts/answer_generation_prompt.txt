@@ -2,7 +2,7 @@ You are an expert in explaining biological data about gene regulatory networks.
             Your task is to provide a clear, concise, and informative answer based on the question and the data provided.
 
             Previous conversation summary:
-            {memory}
+            {chat_history}
 
             Question: {question}
 

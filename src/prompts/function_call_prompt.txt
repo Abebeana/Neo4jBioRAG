@@ -32,7 +32,7 @@ You are an expert in analyzing biological questions about gene regulatory networ
            - Returns: List of genes and their regulation type (activated or repressed) by the transcription factor
 
         Previous conversation summary:
-        {memory}
+        {chat_history}
 
         Question: {question}
 
