@@ -9,24 +9,42 @@ A graph-based Retrieval-Augmented Generation (RAG) system using Neo4j to enhance
 ```
 Neo4jBioRAG/
 │
-├── src/
-│   ├── main.py                  # Entry point for the application
-│   ├── database/
-│   │   └── neo4j_database.py    # Handles storage and access to Neo4j database
-│   ├── dataprocessing/
-│   │   └── data_inference.py    # Processes raw data and generates inferences for Neo4j
-│   ├── llm/
-│   │   └── llm_client.py        # Initializes and manages the LLM using prompt templates
-│   ├── retriever/
-│   │   └── retriever.py         # Retrieves data from Neo4j based on LLM function calls
-│   ├── prompts/
-│   │   ├── answer_generation_template.txt   # Guides LLM in generating user responses
-│   │   └── function_call_template.txt       # Guides LLM in selecting function calls
-│   └── utils/
-│       └── logger_config.py     # Centralized logger configuration
+├── README.md
+├── requirements.txt
+├── main.py
+├── pp.py
 │
-├── requirements.txt             # Python dependencies
-└── README.md                    # Project documentation
+├── data/
+│   ├── raw/
+│   │   └── net.json
+│   └── processed/
+│
+├── src/
+│   ├── __init__.py
+│   ├── database/
+│   │   ├── __init__.py
+│   │   └── neo4j_database.py
+│   ├── dataprocessing/
+│   │   ├── __init__.py
+│   │   └── data_inference.py
+│   ├── llm/
+│   │   ├── __inint__.py
+│   │   ├── llm_client.py
+│   │   └── llm_client.svg
+│   ├── networks/
+│   │   ├── __init__.py
+│   │   └── Network.py
+│   ├── prompts/
+│   │   ├── answer_generation_prompt.txt
+│   │   └── function_call_prompt.txt
+│   ├── retriever/
+│   │   ├── __init__.py
+│   │   └── retriever.py
+│   └── utils/
+│       ├── __init__.py
+│       ├── errors.py
+│       ├── file_utils.py
+│       └── logger_config.py
 ```
 
 ---
