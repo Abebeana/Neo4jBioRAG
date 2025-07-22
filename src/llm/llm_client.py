@@ -57,11 +57,12 @@ class LlmClient:
             )
             
             self.memory = ConversationSummaryBufferMemory(
-                    llm=self.llm_biomistral,
-                    max_token_limit=1000,
-                    return_messages=True
-                )
-            
+            llm=self.llm_biomistral,
+            memory_key="chat_history", 
+            max_token_limit=1000,
+            return_messages=False
+         )
+                    
             logger.info("LLM client components initialized successfully.")
         except Exception as e:
             logger.error(f"An error occurred initializing LLM client components: {e}", exc_info=True)
@@ -91,13 +92,13 @@ class LlmClient:
         # Create templates
         try:
             self.function_calling_prompt_template = PromptTemplate(
-                input_variables=["retrieved_data", "memory"],
-                template=function_calling_content
-            )
+            input_variables=["chat_history", "question"],
+            template=function_calling_content
+         )
             
             self.answer_generation_prompt_template = PromptTemplate(
-                input_variables=["retrieved_data"],
-                template=answer_generation_content
+            input_variables=["chat_history", "question", "formatted_results"],
+            template=answer_generation_content
             )
         except Exception as e:
             logger.error(f"Error creating prompt templates: {e}", exc_info=True)
@@ -114,10 +115,9 @@ class LlmClient:
                 memory=self.memory
             )
             self.answer_generation_chain = LLMChain(
-                llm=self.llm_gemini,
+                llm=self.llm_biomistral,
                 prompt=self.answer_generation_prompt_template,
-                output_parser=self.output_parser,
-                memory=self.memory
+                output_parser=self.output_parser
             )
             logger.info("LLMChain initialized successfully.")
         except Exception as e:
