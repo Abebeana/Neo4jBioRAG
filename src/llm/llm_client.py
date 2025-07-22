@@ -34,12 +34,13 @@ class LlmClient:
             logger.error(f"An error occurred initializing the LLM client: {e}", exc_info=True)
             raise LlmClientError("Failed to initialize LLM client") from e
 
-    def _initialize_components(self):   
+    def _initialize_components(self) -> None:
+        """Initializes the LLM client components with error handling."""
 
         try:
             self.output_parser = StrOutputParser()
             
-            self.llm_gemni = ChatGoogleGenerativeAI(
+            self.llm_gemini = ChatGoogleGenerativeAI(
                     model="gemini-2.0-flash",
                     temperature=0.5,
                     client=genai,
@@ -107,13 +108,13 @@ class LlmClient:
         try:
            
             self.function_calling_chain = LLMChain(
-                llm=self.llm_gemni,
+                llm=self.llm_gemini,
                 prompt=self.function_calling_prompt_template,
                 output_parser=self.output_parser,
                 memory=self.memory
             )
             self.answer_generation_chain = LLMChain(
-                llm=self.llm_gemni,
+                llm=self.llm_gemini,
                 prompt=self.answer_generation_prompt_template,
                 output_parser=self.output_parser,
                 memory=self.memory
