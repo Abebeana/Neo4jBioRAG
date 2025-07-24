@@ -128,7 +128,7 @@ class Neo4jDatabase:
             )
 
         # Create Interaction nodes and relationships for each regulatory context
-        interaction_id = 0
+        # interaction_id = 0
         for target in unique_targets:
             regulators = network.get_regulators(target)
             
