@@ -79,7 +79,7 @@ class Neo4jDatabase:
         # 2. The @with_session decorator will inject it at runtime
         # 3. The parameters argument being Optional has no effect on session being required
         # 4. Type checker warning is suppressed (# type: ignore) because we guarantee injection
-        return self._execute_query(query, parameters) # type: ignore
+        return self._execute_query(query, parameters)  # type: ignore
 
 
     def _create_constraints(self):
@@ -127,8 +127,6 @@ class Neo4jDatabase:
                 {"name": tf}
             )
 
-        # Create Interaction nodes and relationships for each regulatory context
-        # interaction_id = 0
         for target in unique_targets:
             regulators = network.get_regulators(target)
             
@@ -149,68 +147,88 @@ class Neo4jDatabase:
 
 
     @method_cache
-    def get_activators_of_gene(self, gene_name: str) -> List[Dict]:
-        """Return all transcription factors that activate the given gene."""
+    def get_activators_of_gene(self, gene_name: str) -> List[str]:
+        """Return a list of transcription factors that activate the given gene."""
         query = (
             "MATCH (tf:TranscriptionFactor)-[:ACTIVATES]->(g:Gene {name: $gene_name}) "
             "RETURN tf.name AS activator"
         )
-        return self.execute_query(query, {"gene_name": gene_name})
+        results = self.execute_query(query, {"gene_name": gene_name})
+        return [result['activator'] for result in results] if results else []
 
     @method_cache
-    def get_repressors_of_gene(self, gene_name: str) -> List[Dict]:
-        """Return all transcription factors that repress the given gene."""
+    def get_repressors_of_gene(self, gene_name: str) -> List[str]:
+        """Return a list of transcription factors that repress the given gene."""
         query = (
             "MATCH (tf:TranscriptionFactor)-[:REPRESSES]->(g:Gene {name: $gene_name}) "
             "RETURN tf.name AS repressor"
         )
-        return self.execute_query(query, {"gene_name": gene_name})
+        results = self.execute_query(query, {"gene_name": gene_name})
+        return [result['repressor'] for result in results] if results else []
 
     @method_cache
-    def get_regulators_of_gene(self, gene_name: str) -> List[Dict]:
-        """Return all transcription factors that regulate (activate or repress) the given gene."""
+    def get_regulators_of_gene(self, gene_name: str) -> Dict[str, List[str]]:
+        """
+        Return all transcription factors that regulate (activate or repress) the given gene,
+        grouped by regulation type.
+        """
         query = (
             "MATCH (tf:TranscriptionFactor)-[r]->(g:Gene {name: $gene_name}) "
             "WHERE type(r) IN ['ACTIVATES', 'REPRESSES'] "
             "RETURN tf.name AS regulator, type(r) AS regulation_type"
         )
-        return self.execute_query(query, {"gene_name": gene_name})
+        results = self.execute_query(query, {"gene_name": gene_name})
+        output = {"ACTIVATES": [], "REPRESSES": []}
+        if results:
+            for record in results:
+                regulation_type = record.get("regulation_type")
+                regulator_name = record.get("regulator")
+                if regulation_type and regulator_name:
+                    if regulation_type in output:
+                        output[regulation_type].append(regulator_name)
+        return output
 
     @method_cache
-    def get_genes_repressed_by_gene(self, tf_name: str) -> List[Dict]:
-        """Return all genes repressed by the given transcription factor."""
+    def get_genes_repressed_by_gene(self, tf_name: str) -> List[str]:
+        """Return a list of genes repressed by the given transcription factor."""
         query = (
             "MATCH (tf:TranscriptionFactor {name: $tf_name})-[:REPRESSES]->(g:Gene) "
             "RETURN g.name AS repressed_gene"
         )
-        return self.execute_query(query, {"tf_name": tf_name})
+        results = self.execute_query(query, {"tf_name": tf_name})
+        return [result['repressed_gene'] for result in results] if results else []
 
     @method_cache
-    def get_genes_activated_by_gene(self, tf_name: str) -> List[Dict]:
-        """Return all genes activated by the given transcription factor."""
+    def get_genes_activated_by_gene(self, tf_name: str) -> List[str]:
+        """Return a list of genes activated by the given transcription factor."""
         query = (
             "MATCH (tf:TranscriptionFactor {name: $tf_name})-[:ACTIVATES]->(g:Gene) "
             "RETURN g.name AS activated_gene"
         )
-        return self.execute_query(query, {"tf_name": tf_name})
+        results = self.execute_query(query, {"tf_name": tf_name})
+        return [result['activated_gene'] for result in results] if results else []
 
     @method_cache
-    def get_genes_regulated_by_gene(self, tf_name: str) -> List[Dict]:
-        """Return all genes regulated (activated or repressed) by the given transcription factor."""
+    def get_genes_regulated_by_gene(self, tf_name: str) -> Dict[str, List[str]]:
+        """
+        Return all genes regulated (activated or repressed) by the given transcription factor,
+        grouped by regulation type.
+        """
         query = (
             "MATCH (tf:TranscriptionFactor {name: $tf_name})-[r]->(g:Gene) "
             "WHERE type(r) IN ['ACTIVATES', 'REPRESSES'] "
             "RETURN g.name AS gene, type(r) AS regulation_type"
         )
-        return self.execute_query(query, {"tf_name": tf_name})
-
-    def dumb_method_one(self):
-        """A placeholder method that does nothing."""
-        return None
-
-    def dumb_method_two(self):
-        """Another placeholder method that does nothing."""
-        return None
-
+        results = self.execute_query(query, {"tf_name": tf_name})
         
+        output = {"ACTIVATES": [], "REPRESSES": []}
+        if results:
+            for record in results:
+                regulation_type = record.get("regulation_type")
+                gene_name = record.get("gene")
+                if regulation_type and gene_name:
+                    if regulation_type in output:
+                        output[regulation_type].append(gene_name)
+        return output
+
 

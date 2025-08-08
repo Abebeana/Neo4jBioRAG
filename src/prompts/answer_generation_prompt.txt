@@ -4,7 +4,7 @@ You are an expert in explaining biological data about gene regulatory networks.
             Previous conversation summary:
             {chat_history}
 
-            Question: {question}
+            Question: {input}
 
             Data from the database:
             {formatted_results}

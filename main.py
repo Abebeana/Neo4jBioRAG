@@ -1,11 +1,14 @@
 import os
+import re
+from unittest import result
+from urllib import response
 from dotenv import load_dotenv
 from src import retriever
 from src.llm import llm_client
 from src.utils.logger_config import setup_logger
 from src.database.neo4j_database import Neo4jDatabase
 from src.networks.Network import Network
-from src.retriever.retriever import Retriever
+from src.retriever.retriever import retrieve_data
 from src.llm.llm_client import LlmClient
 
 
@@ -19,9 +22,13 @@ def main():
     network = Network.load_from_json(raw_data)
     print(f"Loaded network with {len(network.GRN)} entries")
     
-    llm_client = LlmClient()         
-    database = Neo4jDatabase()       
-    retriever = Retriever(llm_client, database) 
+    database = Neo4jDatabase()
+    llm_client = LlmClient(database)
+
+    # database.store_network(network)
+    # print("Network data stored in Neo4j database.")
+
+  
 
 
     while True:
@@ -30,17 +37,24 @@ def main():
             database.close()
             print("Exiting...")
             break
+        try:
+            result = retrieve_data(llm_client, query)
+            print(f"Retrieved data: {result}")
+            if not result:
+                print("No data retrieved.")
+                continue
 
-        # Use the LLM client to process the query
-        retrieved_data = retriever.retrieve_data(query)
-        if retrieved_data:
-            print(f"Retrieved data: {retrieved_data}")
-        else:
-            print("No data retrieved.")
-            continue
-        llm_response = llm_client.llm_biomistral.invoke(query)
+            response = result.get('output')
+            if not response:
+                print("No data retrieved.")
+                continue
+            print(f"Response: {response}")
 
-        print(f"LLM response: {llm_response}")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
+
+            
 
 
 if __name__ == "__main__":
