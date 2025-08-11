@@ -1,0 +1,72 @@
+# Project Setup Instructions
+
+## 1. Create a Virtual Environment
+
+It is highly recommended to use a virtual environment to manage project dependencies.
+
+```bash
+python -m venv ragvenv
+source ragvenv/bin/activate  # On Windows, use `ragvenv\Scripts\activate`
+```
+
+## 2. Install Dependencies
+
+Install all the required Python packages using the `requirements.txt` file.
+
+```bash
+pip install -r requirements.txt
+```
+
+## 3. Configure Environment Variables
+
+Create a file named `.env` in the root directory of the project. This file will store your configuration and credentials.
+
+Copy the following content into your `.env` file and replace the placeholder with your actual Google API key.
+
+```env
+# ---------------------------------
+# LLM Configuration
+# ---------------------------------
+# The name of the Gemini model to use for the agent and chains
+LLM_MODEL_NAME="gemini-2.5-pro"
+
+# The temperature setting for the LLM (0.0 to 1.0). Lower values are more deterministic.
+LLM_TEMPERATURE=0.1
+
+# The maximum number of tokens to generate in the response.
+LLM_MAX_TOKENS=1024
+
+# Your Google AI Studio API Key
+GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY_HERE"
+
+# ---------------------------------
+# Conversation Memory
+# ---------------------------------
+# The token limit for the conversation summary buffer.
+CONVERSATION_HISTORY_LIMIT=1000
+
+# ---------------------------------
+# Database Configuration
+# ---------------------------------
+# The URI for the Neo4j database instance
+NEO4J_URI="bolt://localhost:7687"
+
+# The username for the Neo4j database
+NEO4J_USERNAME="neo4j"
+
+# The password for the Neo4j database
+NEO4J_PASSWORD="password"
+
+# ---------------------------------
+# Data Paths
+# ---------------------------------
+# The path to the raw JSON data file
+RAW_DATA_PATH="data/raw/net.json"
+```
+
+## 4. Running the Application
+
+Once the setup is complete, you can run the main application.
+
+```bash
+python main.py
