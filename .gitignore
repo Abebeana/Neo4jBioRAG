@@ -199,3 +199,4 @@ cython_debug/
 .idea/modules.xml
 .idea/Neo4jBioRAG.iml
 .idea/vcs.xml
+commit_messages.txt
