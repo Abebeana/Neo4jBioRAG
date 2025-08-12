@@ -64,6 +64,8 @@ class Neo4jDatabase:
             self.driver.close()
             logger.info("Neo4jDatabase connection closed.")
 
+    # The '*' in the `_execute_query` signature below makes `session` a keyword-only parameter.
+    # The `@with_session` decorator injects `session` at runtime so callers never pass it directly.
     @with_session
     def _execute_query(self, query: str, parameters: Optional[Dict[str, Any]] = None, *, session):
         try:
@@ -154,7 +156,14 @@ class Neo4jDatabase:
             "RETURN tf.name AS activator"
         )
         results = self.execute_query(query, {"gene_name": gene_name})
+        print(results)
+        print("@"*50)
         return [result['activator'] for result in results] if results else []
+
+    def get_activators_of_gene_data(self, gene_name: str) -> Dict[str, Any]:
+        """Return activators of a gene with count metadata."""
+        items = self.get_activators_of_gene(gene_name)
+        return {"activated_by": items, "total_activators": len(items)}
 
     @method_cache
     def get_repressors_of_gene(self, gene_name: str) -> List[str]:
@@ -165,6 +174,11 @@ class Neo4jDatabase:
         )
         results = self.execute_query(query, {"gene_name": gene_name})
         return [result['repressor'] for result in results] if results else []
+
+    def get_repressors_of_gene_data(self, gene_name: str) -> Dict[str, Any]:
+        """Return repressors of a gene with count metadata."""
+        items = self.get_repressors_of_gene(gene_name)
+        return {"repressed_by": items, "total_repressors": len(items)}
 
     @method_cache
     def get_regulators_of_gene(self, gene_name: str) -> Dict[str, List[str]]:
@@ -188,6 +202,18 @@ class Neo4jDatabase:
                         output[regulation_type].append(regulator_name)
         return output
 
+    def get_regulators_of_gene_data(self, gene_name: str) -> Dict[str, Any]:
+        """Return regulators grouped by type with counts and total."""
+        groups = self.get_regulators_of_gene(gene_name)
+        activates = groups.get("ACTIVATES", []) or []
+        represses = groups.get("REPRESSES", []) or []
+        counts = {
+            "total_activators": len(activates),
+            "total_repressors": len(represses),
+            "total_regulators": len(activates) + len(represses),
+        }
+        return {"activated_by": activates, "repressed_by": represses, "counts": counts}
+
     @method_cache
     def get_genes_repressed_by_gene(self, tf_name: str) -> List[str]:
         """Return a list of genes repressed by the given transcription factor."""
@@ -198,6 +224,11 @@ class Neo4jDatabase:
         results = self.execute_query(query, {"tf_name": tf_name})
         return [result['repressed_gene'] for result in results] if results else []
 
+    def get_genes_repressed_by_gene_data(self, tf_name: str) -> Dict[str, Any]:
+        """Return genes repressed by TF with count metadata."""
+        items = self.get_genes_repressed_by_gene(tf_name)
+        return {"represses": items, "total_repressed": len(items)}
+
     @method_cache
     def get_genes_activated_by_gene(self, tf_name: str) -> List[str]:
         """Return a list of genes activated by the given transcription factor."""
@@ -207,6 +238,11 @@ class Neo4jDatabase:
         )
         results = self.execute_query(query, {"tf_name": tf_name})
         return [result['activated_gene'] for result in results] if results else []
+
+    def get_genes_activated_by_gene_data(self, tf_name: str) -> Dict[str, Any]:
+        """Return genes activated by TF with count metadata."""
+        items = self.get_genes_activated_by_gene(tf_name)
+        return {"activates": items, "total_activated": len(items)}
 
     @method_cache
     def get_genes_regulated_by_gene(self, tf_name: str) -> Dict[str, List[str]]:
@@ -230,5 +266,17 @@ class Neo4jDatabase:
                     if regulation_type in output:
                         output[regulation_type].append(gene_name)
         return output
+
+    def get_genes_regulated_by_gene_data(self, tf_name: str) -> Dict[str, Any]:
+        """Return TF-regulated genes grouped with counts and total."""
+        groups = self.get_genes_regulated_by_gene(tf_name)
+        activates = groups.get("ACTIVATES", []) or []
+        represses = groups.get("REPRESSES", []) or []
+        counts = {
+            "total_activated": len(activates),
+            "total_repressed": len(represses),
+            "total_regulated": len(activates) + len(represses),
+        }
+        return {"activates": activates, "represses": represses, "counts": counts}
 
 
