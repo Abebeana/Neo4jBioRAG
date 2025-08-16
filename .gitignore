@@ -200,3 +200,6 @@ cython_debug/
 .idea/Neo4jBioRAG.iml
 .idea/vcs.xml
 commit_messages.txt
+
+# Mac os 
+.DS_Store
