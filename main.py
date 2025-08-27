@@ -18,6 +18,7 @@ from src.networks.Network import Network
 from src.llm.llm_client import LlmClient
 from src.agents.agent import create_agent
 from typing import Any
+import textwrap
 
 # Load environment variables from .env file
 load_dotenv()
@@ -126,7 +127,7 @@ def main():
             
             # --- 4. Answer Generation ---
             # Use a separate chain to generate a natural language response from the tool result
-            if isinstance(tool_result, dict) and tool_result != 'No output found':
+            if isinstance(tool_result, (dict, tuple)) and tool_result != 'No output found':
                 formatted_results = str(tool_result)
                 try:
                     # Invoke the answer generation chain
@@ -136,8 +137,10 @@ def main():
                     })
                     # The result is a dictionary, get the answer from the 'text' key
                     answer = answer_result.get('text', str(answer_result))
+                    wrapped_answer = textwrap.fill(answer, width=80)  # Wrap text at 80 characters
+
                     print("*" * 50)
-                    print(f"Generated Answer: {answer}")
+                    print(f"Generated Answer:\n{wrapped_answer}")
                     print("*" * 50)
                 except Exception as chain_error:
                     logger.error(f"Error in answer generation chain: {chain_error}", exc_info=True)
