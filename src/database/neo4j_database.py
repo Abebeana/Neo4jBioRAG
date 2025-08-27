@@ -52,10 +52,17 @@ class Neo4jDatabase:
 
         try:
             self.driver = GraphDatabase.driver(self._uri, auth=(self._user, self._password))
-            logger.info("Neo4jDatabase initialized.")
+            # Verify connectivity immediately; raise if not reachable
+            self.driver.verify_connectivity()
+            logger.info("Neo4jDatabase initialized and connectivity verified.")
         except Exception as e:
             logger.error(f"Failed to connect to Neo4j database: {e}")
-            self.driver = None
+            try:
+                if hasattr(self, 'driver') and self.driver is not None:
+                    self.driver.close()
+            finally:
+                self.driver = None
+            raise RuntimeError(f"Neo4j connectivity check failed: {e}")
 
 
     def close(self):
