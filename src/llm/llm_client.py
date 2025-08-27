@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.chat_models.ollama import ChatOllama
 from langchain_core.prompts import PromptTemplate
 from langchain.memory import ConversationSummaryBufferMemory
 from langchain.chains import LLMChain
@@ -42,8 +43,8 @@ class LlmClient:
         Initializes the LLM client by setting up all necessary components.
 
         Args:
-            database: An active database connection instance (used for memory, etc.).
-        
+            database: An active database connection instance.
+
         Raises:
             LlmClientError: If any part of the initialization fails.
         """
@@ -98,6 +99,10 @@ class LlmClient:
                 output_key="output",
                 return_messages=True
             )
+            self.llm_ollama = ChatOllama(
+                model="cniongolo/biomistral:latest",
+                temperature=temperature,
+            )
             logger.info("LLM and memory components initialized.")
         except Exception as e:
             logger.error(f"An error occurred initializing LLM components: {e}", exc_info=True)
@@ -129,7 +134,7 @@ class LlmClient:
         try:
             # This chain combines the answer generation prompt with the LLM
             self.answer_generation_chain = LLMChain(
-                llm=self.llm_gemini,
+                llm=self.llm_ollama,
                 prompt=self.answer_generation_prompt_template,
             )
             logger.info("Answer generation LLMChain initialized successfully.")

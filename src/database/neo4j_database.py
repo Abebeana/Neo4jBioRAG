@@ -156,8 +156,8 @@ class Neo4jDatabase:
             "RETURN tf.name AS activator"
         )
         results = self.execute_query(query, {"gene_name": gene_name})
-        print(results)
-        print("@"*50)
+        # print(results)
+        # print("@"*50)
         return [result['activator'] for result in results] if results else []
 
     def get_activators_of_gene_data(self, gene_name: str) -> Dict[str, Any]:
