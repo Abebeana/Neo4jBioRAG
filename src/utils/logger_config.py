@@ -16,8 +16,6 @@ def setup_logger(name:str) -> logging.Logger:
         handlers=[logging.StreamHandler()]  # Console only
     )
     
-    # Silence neo4j driver verbosity
-    logging.getLogger("neo4j").setLevel(logging.WARNING)
     
     return logging.getLogger(name)
 
