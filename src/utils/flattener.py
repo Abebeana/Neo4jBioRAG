@@ -30,4 +30,3 @@ def flatten_series(series):
     return recursive_flatten(series.dropna().tolist())
 
 
-

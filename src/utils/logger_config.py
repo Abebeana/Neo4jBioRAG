@@ -16,6 +16,7 @@ def setup_logger(name:str) -> logging.Logger:
         handlers=[logging.StreamHandler()]  # Console only
     )
     
+    
     return logging.getLogger(name)
 
 
